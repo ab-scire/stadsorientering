@@ -59,7 +59,7 @@ function saveTrack() {
 // Äldre sparade poster saknar några fält. De får standardvärden.
 function normalise(saved) {
   return {
-    id: "active", name: "", startedAt: Date.now(), endedAt: null, active: false, exported: false, gaps: 0,
+    id: "active", name: "", activity: "Till fots", startedAt: Date.now(), endedAt: null, active: false, exported: false, gaps: 0,
     ...saved,
     points: Array.isArray(saved?.points) ? saved.points : [],
   };
@@ -67,6 +67,10 @@ function normalise(saved) {
 
 function rememberName(name) {
   try { localStorage.setItem("stadsorientering-name", name); } catch { /* privat läge */ }
+}
+
+function selectedActivity() {
+  return document.querySelector('input[name="activity"]:checked')?.value || "Till fots";
 }
 
 // ---------------------------------------------------------------- format
@@ -139,7 +143,7 @@ function nextStep() {
       : { step: 3, text: "Tryck på Tillåt när telefonen frågar om platsåtkomst." };
   }
   if (!hasGoodFix()) return { step: 4, text: `Väntar på bättre GPS. Behöver ±${MAX_ACCURACY} m eller bättre.` };
-  return { step: 5, text: "Klart! Tryck på Starta loppet.", ready: true };
+  return { step: 5, text: "Klart! Tryck på Starta rundan.", ready: true };
 }
 
 // ---------------------------------------------------------------- rendering
@@ -316,7 +320,7 @@ async function watchPermission() {
 }
 
 // Simulering går genom samma onPosition/onGpsError som riktig GPS.
-// ?simulate=1: bra GPS. ?simulate=2: svag GPS först och ett avbrott under loppet. ?simulate=3: nekad platsåtkomst.
+// ?simulate=1: bra GPS. ?simulate=2: svag GPS först och ett avbrott under aktiviteten. ?simulate=3: nekad platsåtkomst.
 function startSimulation(mode) {
   if (mode === 3) { setTimeout(() => onGpsError({ code: 1 }), 800); simulationId = -1; return; }
   const route = [[57.1050, 12.2500], [57.1053, 12.2508], [57.1058, 12.2512], [57.1063, 12.2507], [57.1065, 12.2517], [57.1060, 12.2525], [57.1053, 12.2521], [57.1049, 12.2513]];
@@ -360,7 +364,7 @@ function releaseWakeLock() {
   wakeLock = null;
 }
 
-// ---------------------------------------------------------------- loppet
+// ---------------------------------------------------------------- aktiviteten
 
 function startRace(force = false) {
   const name = $("name").value.trim();
@@ -376,7 +380,7 @@ function startRace(force = false) {
   if (!name) { $("name").focus(); return; }
   requestWakeLock(); // direkt i klicket, innan något annat väntar
   rememberName(name);
-  track = normalise({ name, startedAt: Date.now(), active: true });
+  track = normalise({ name, activity: selectedActivity(), startedAt: Date.now(), active: true });
   saveTrack();
   runError("");
   $("gap-note").hidden = true;
@@ -434,7 +438,7 @@ function confirmTap(button, question, action) {
 function showExport() {
   show("export");
   const elapsed = (track.endedAt || Date.now()) - track.startedAt;
-  const cells = [[formatTime(elapsed), "Löptid"], [`${formatDistance(trackDistance())} km`, "Sträcka"], [track.points.length, "Punkter"], [track.gaps || 0, "GPS-glapp"]];
+  const cells = [[formatTime(elapsed), "Tid"], [`${formatDistance(trackDistance())} km`, "Sträcka"], [track.points.length, "Punkter"], [track.gaps || 0, "GPS-glapp"], [track.activity, "Sätt"]];
   $("summary").replaceChildren(...cells.map(([value, label]) => {
     const cell = document.createElement("div");
     cell.append(Object.assign(document.createElement("b"), { textContent: value }), Object.assign(document.createElement("span"), { textContent: label }));
@@ -504,6 +508,7 @@ async function newTrack() {
   await deleteTrack();
   track = null;
   $("name").value = "";
+  document.querySelector('input[name="activity"][value="Till fots"]').checked = true;
   rememberName("");
   show("start");
   render();
@@ -624,7 +629,7 @@ async function initialise() {
 
   track = normalise(saved);
   if (track.active) {
-    $("resume-info").textContent = `${track.name} · ${formatTime(Date.now() - track.startedAt)} sedan start · ${track.points.length} sparade punkter.`;
+    $("resume-info").textContent = `${track.name} · ${track.activity} · ${formatTime(Date.now() - track.startedAt)} sedan start · ${track.points.length} sparade punkter.`;
     show("resume");
   } else {
     showExport(); // Ett avslutat spår visas alltid före startsidan, så att det inte tappas bort.

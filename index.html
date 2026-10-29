@@ -21,7 +21,7 @@
       </div>
     </header>
 
-    <p id="storage-warning" class="error-box" hidden>Spåret kan inte sparas i telefonen (privat surfläge?). Det fungerar ändå, men ladda inte om sidan under loppet.</p>
+    <p id="storage-warning" class="error-box" hidden>Spåret kan inte sparas i telefonen (privat surfläge?). Det fungerar ändå, men ladda inte om sidan under aktiviteten.</p>
 
     <!-- 1. Start: namn, GPS och start -->
     <section id="start-view" class="view">
@@ -36,6 +36,12 @@
       <label class="field">Ditt namn
         <input id="name" autocomplete="name" placeholder="För- och efternamn" maxlength="80" enterkeyhint="done">
       </label>
+
+      <fieldset class="activity-choice">
+        <legend>Hur tar du dig runt?</legend>
+        <label><input type="radio" name="activity" value="Till fots" checked><span>Till fots</span></label>
+        <label><input type="radio" name="activity" value="Cykel"><span>Cykel</span></label>
+      </fieldset>
 
       <div class="gps-panel">
         <button id="gps-on" class="gps-button" type="button">Slå på GPS</button>
@@ -56,7 +62,7 @@
       </div>
 
       <div class="start-actions">
-        <button id="start" class="primary is-waiting" type="button" aria-disabled="true">Starta loppet</button>
+        <button id="start" class="primary is-waiting" type="button" aria-disabled="true">Starta rundan</button>
         <button id="start-anyway" class="text-button" type="button" hidden>Starta ändå med svag GPS</button>
       </div>
 
@@ -67,35 +73,35 @@
           <li><span>Tryck på <b>Slå på GPS</b>.</span></li>
           <li><span>Tillåt platsåtkomst när telefonen frågar.</span></li>
           <li><span>Vänta tills GPS-statusen blir grön eller gul.</span></li>
-          <li><span>Tryck på <b>Starta loppet</b>.</span></li>
+          <li><span>Tryck på <b>Starta rundan</b>.</span></li>
           <li><span>Lägg telefonen i fickan. Fickläget slås på av sig självt och skärmen hålls tänd.</span></li>
-          <li><span>Efter målgång: håll in för att låsa upp, avsluta loppet och dela GPX-filen.</span></li>
+          <li><span>När du är klar: håll in för att låsa upp, avsluta rundan och dela GPX-filen.</span></li>
         </ol>
       </section>
 
       <ul class="advice">
-        <li>Ha sidan öppen hela loppet och byt inte app.</li>
-        <li>Lås inte telefonen med sidoknappen. Då slutar GPS:en logga. Använd fickläget i stället.</li>
+        <li>Ha sidan öppen under hela aktiviteten och byt inte app.</li>
+        <li>Lås inte telefonen med sidoknappen. Då kan GPS:en sluta logga. Använd fickläget i stället.</li>
         <li>Ladda telefonen innan. Skärmen och GPS:en drar ström.</li>
       </ul>
       <p class="privacy">GPS i webbläsaren kräver en säker https-adress, som den här sidan har. Telefonen frågar ändå om lov första gången, och då måste du välja Tillåt.</p>
-      <p class="privacy">Ditt spår sparas bara i den här telefonen. Det lämnar telefonen först när du själv delar filen efter loppet.</p>
+      <p class="privacy">Ditt spår sparas bara i den här telefonen. Det lämnar telefonen först när du själv delar filen efter rundan.</p>
     </section>
 
     <!-- 2. Spår som pågick när sidan laddades om -->
     <section id="resume-view" class="view" hidden>
-      <p class="eyebrow">Loppet pågår fortfarande</p>
+      <p class="eyebrow">Rundan pågår fortfarande</p>
       <h1>Fortsätta?</h1>
       <p id="resume-info" class="lead"></p>
       <div class="bottom-actions">
         <button id="resume" class="primary" type="button">Fortsätt</button>
-        <button id="resume-stop" class="text-button" type="button">Avsluta loppet</button>
+        <button id="resume-stop" class="text-button" type="button">Avsluta rundan</button>
       </div>
     </section>
 
-    <!-- 3. Under loppet -->
+    <!-- 3. Under rundan -->
     <section id="running-view" class="view" hidden>
-      <p class="eyebrow">Loppet pågår</p>
+      <p class="eyebrow">Rundan pågår</p>
       <div id="elapsed" class="elapsed">00:00</div>
       <div class="metrics">
         <div><b id="distance">0,00</b><span>km</span></div>
@@ -108,10 +114,10 @@
         <span id="gap-text"></span>
         <button id="close-gap" type="button" aria-label="Stäng notisen">×</button>
       </div>
-      <p id="wake-note" class="notice" hidden>Skärmen kan inte hållas tänd automatiskt i den här webbläsaren. Ställ in automatisk skärmlåsning på längsta tiden under loppet.</p>
+      <p id="wake-note" class="notice" hidden>Skärmen kan inte hållas tänd automatiskt i den här webbläsaren. Ställ in automatisk skärmlåsning på längsta tiden under aktiviteten.</p>
       <div class="bottom-actions">
         <button id="pocket-on" class="primary" type="button">Fickläge</button>
-        <button id="stop" class="text-button" type="button">Avsluta loppet</button>
+        <button id="stop" class="text-button" type="button">Avsluta rundan</button>
       </div>
     </section>
 
@@ -128,7 +134,7 @@
       <div class="bottom-actions">
         <button id="share" class="primary" type="button">Dela GPX-fil</button>
         <button id="download" class="text-button" type="button">Ladda ned filen i stället</button>
-        <button id="new-track" class="text-button text-button--quiet" type="button">Nytt lopp</button>
+        <button id="new-track" class="text-button text-button--quiet" type="button">Ny aktivitet</button>
       </div>
     </section>
   </main>

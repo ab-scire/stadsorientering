@@ -137,6 +137,44 @@ h1 {
   font-size: 18px; /* minst 16 px, annars zoomar iOS in */
 }
 
+.activity-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+}
+.activity-choice legend {
+  grid-column: 1 / -1;
+  margin-bottom: 6px;
+  color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 600;
+}
+.activity-choice label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink-2);
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+}
+.activity-choice input {
+  position: absolute;
+  opacity: 0;
+}
+.activity-choice label:has(input:checked) {
+  border-color: var(--accent);
+  background: #2a1a0d;
+  color: var(--accent);
+}
+
 .gps-panel { margin-top: 14px; }
 .gps-button {
   width: 100%;
@@ -262,7 +300,7 @@ h1 {
 }
 .advice li + li { margin-top: 8px; }
 
-/* ---------------------------------------------------------------- under loppet */
+/* ---------------------------------------------------------------- under aktiviteten */
 .elapsed {
   margin: 4px 0 20px;
   font-family: var(--display);
