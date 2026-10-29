@@ -4,54 +4,149 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090d12">
+  <meta name="format-detection" content="telephone=no">
   <title>Stadsorientering – GPS-tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
-  <style>.hold span,.hold i{pointer-events:none}</style>
 </head>
 <body>
   <main class="app">
     <header class="topbar">
-      <span class="brand">STADSORIENTERING</span>
-      <div class="top-status"><span id="top-gps" class="gps-chip">GPS av</span><span id="sim-pill" class="pill" hidden>SIMULERAD GPS</span></div>
+      <span class="brand">Stadsorientering</span>
+      <div class="top-status">
+        <span id="sim-pill" class="pill" hidden title="Simulerad GPS">Simulerad</span>
+        <span id="top-gps" class="gps-chip">GPS av</span>
+      </div>
     </header>
 
+    <p id="storage-warning" class="error-box" hidden>Spåret kan inte sparas i telefonen (privat surfläge?). Det fungerar ändå, men ladda inte om sidan under loppet.</p>
+
+    <!-- 1. Start: namn, GPS och start -->
     <section id="start-view" class="view">
-      <p class="eyebrow">INNAN DU STARTAR</p><h1>Klar för start?</h1>
-      <label class="field">Ditt namn<input id="name" autocomplete="name" placeholder="För- och efternamn" maxlength="80"></label>
-      <button id="gps-on" class="secondary">Slå på GPS</button>
-      <p id="start-error" class="error-box" hidden role="alert"></p>
-      <div id="start-wait" class="muted" hidden>Letar efter en tillräckligt noggrann GPS-position…</div>
-      <ul class="advice"><li>Ha sidan öppen hela loppet och byt inte app.</li><li>Lås inte telefonen. Använd fickläget, då står skärmen på men är låst för tryck.</li><li>Ladda telefonen innan. Skärmen och GPS:en drar ström.</li></ul>
+      <p class="eyebrow">Innan du startar</p>
+      <h1>Klar för start?</h1>
+
+      <div id="next-step" class="next-step" role="status" aria-live="polite">
+        <span id="next-step-number" class="next-step__number">1</span>
+        <p id="next-step-text">Skriv ditt namn.</p>
+      </div>
+
+      <label class="field">Ditt namn
+        <input id="name" autocomplete="name" placeholder="För- och efternamn" maxlength="80" enterkeyhint="done">
+      </label>
+
+      <div class="gps-panel">
+        <button id="gps-on" class="gps-button" type="button">Slå på GPS</button>
+        <div id="gps-live" class="gps-live" hidden>
+          <span id="start-gps" class="gps-chip gps-chip--large">Söker GPS…</span>
+          <p id="gps-hint" class="muted"></p>
+        </div>
+      </div>
+
+      <div id="gps-help" class="help-box" hidden role="alert">
+        <p id="gps-help-text"></p>
+        <div id="gps-help-settings" class="help-settings" hidden>
+          <p><b>iPhone:</b> Inställningar → Integritet och säkerhet → Platstjänster. Slå på Platstjänster och välj ”Vid användning” för Safari-webbplatser. I Safari: tryck på <b>aA</b> i adressfältet → Webbplatsinställningar → Plats → Tillåt.</p>
+          <p><b>Android:</b> Tryck på ikonen till vänster om adressen → Behörigheter → Plats → Tillåt. Kontrollera också att Plats är påslaget i snabbinställningarna.</p>
+          <p>Ladda om sidan om det inte hjälper att försöka igen.</p>
+        </div>
+        <button id="gps-retry" class="inline-button" type="button">Försök igen</button>
+      </div>
+
+      <div class="start-actions">
+        <button id="start" class="primary is-waiting" type="button" aria-disabled="true">Starta loppet</button>
+        <button id="start-anyway" class="text-button" type="button" hidden>Starta ändå med svag GPS</button>
+      </div>
+
+      <section class="guide" aria-labelledby="guide-title">
+        <h2 id="guide-title" class="eyebrow">Så går det till</h2>
+        <ol id="guide-steps" class="guide-steps">
+          <li><span>Skriv ditt namn.</span></li>
+          <li><span>Tryck på <b>Slå på GPS</b>.</span></li>
+          <li><span>Tillåt platsåtkomst när telefonen frågar.</span></li>
+          <li><span>Vänta tills GPS-statusen blir grön eller gul.</span></li>
+          <li><span>Tryck på <b>Starta loppet</b>.</span></li>
+          <li><span>Lägg telefonen i fickan. Fickläget slås på av sig självt och skärmen hålls tänd.</span></li>
+          <li><span>Efter målgång: håll in för att låsa upp, avsluta loppet och dela GPX-filen.</span></li>
+        </ol>
+      </section>
+
+      <ul class="advice">
+        <li>Ha sidan öppen hela loppet och byt inte app.</li>
+        <li>Lås inte telefonen med sidoknappen. Då slutar GPS:en logga. Använd fickläget i stället.</li>
+        <li>Ladda telefonen innan. Skärmen och GPS:en drar ström.</li>
+      </ul>
+      <p class="privacy">GPS i webbläsaren kräver en säker https-adress, som den här sidan har. Telefonen frågar ändå om lov första gången, och då måste du välja Tillåt.</p>
       <p class="privacy">Ditt spår sparas bara i den här telefonen. Det lämnar telefonen först när du själv delar filen efter loppet.</p>
-      <div class="bottom-actions"><button id="start" class="primary" disabled>STARTA LOPPET</button><button id="start-anyway" class="text-button" hidden>Starta ändå</button></div>
     </section>
 
+    <!-- 2. Spår som pågick när sidan laddades om -->
     <section id="resume-view" class="view" hidden>
-      <p class="eyebrow">LOPPET PÅGÅR FORTFARANDE</p><h1>Fortsätta?</h1><p id="resume-info"></p>
-      <div class="bottom-actions"><button id="resume" class="primary">FORTSÄTT</button><button id="resume-stop" class="text-button">Avsluta loppet</button></div>
+      <p class="eyebrow">Loppet pågår fortfarande</p>
+      <h1>Fortsätta?</h1>
+      <p id="resume-info" class="lead"></p>
+      <div class="bottom-actions">
+        <button id="resume" class="primary" type="button">Fortsätt</button>
+        <button id="resume-stop" class="text-button" type="button">Avsluta loppet</button>
+      </div>
     </section>
 
-    <section id="running-view" class="view running" hidden>
-      <p class="eyebrow">LOPPET PÅGÅR</p><div id="elapsed" class="elapsed">00:00</div>
-      <div class="metrics"><div><b id="distance">0,00</b><span>KM</span></div><div><b id="point-count">0</b><span>PUNKTER</span></div><div><span id="run-gps" class="gps-chip">GPS av</span></div></div>
-      <p id="last-point" class="last-point">Ingen punkt ännu</p><p id="run-error" class="error-box" hidden role="alert"></p>
-      <div id="gap-note" class="notice" hidden><span id="gap-text"></span><button id="close-gap" aria-label="Stäng notis">×</button></div>
-      <p id="wake-note" class="muted" hidden>Din webbläsare kan inte hålla skärmen tänd. Ändra tiden för automatisk skärmlåsning i telefonens inställningar.</p>
-      <div class="bottom-actions"><button id="pocket-on" class="primary">FICKLÄGE</button><button id="stop" class="text-button">Avsluta loppet</button></div>
+    <!-- 3. Under loppet -->
+    <section id="running-view" class="view" hidden>
+      <p class="eyebrow">Loppet pågår</p>
+      <div id="elapsed" class="elapsed">00:00</div>
+      <div class="metrics">
+        <div><b id="distance">0,00</b><span>km</span></div>
+        <div><b id="point-count">0</b><span>punkter</span></div>
+        <div><span id="run-gps" class="gps-chip">GPS av</span></div>
+      </div>
+      <p id="last-point" class="last-point">Ingen sparad punkt ännu</p>
+      <p id="run-error" class="error-box" hidden role="alert"></p>
+      <div id="gap-note" class="notice" hidden>
+        <span id="gap-text"></span>
+        <button id="close-gap" type="button" aria-label="Stäng notisen">×</button>
+      </div>
+      <p id="wake-note" class="notice" hidden>Skärmen kan inte hållas tänd automatiskt i den här webbläsaren. Ställ in automatisk skärmlåsning på längsta tiden under loppet.</p>
+      <div class="bottom-actions">
+        <button id="pocket-on" class="primary" type="button">Fickläge</button>
+        <button id="stop" class="text-button" type="button">Avsluta loppet</button>
+      </div>
     </section>
 
+    <!-- 4. Efter målgång -->
     <section id="export-view" class="view" hidden>
-      <p class="eyebrow">I MÅL</p><h1>Skicka ditt spår</h1><p id="already-sent" class="notice" hidden>Spåret är redan skickat eller nedladdat.</p>
+      <p class="eyebrow">I mål</p>
+      <h1>Skicka ditt spår</h1>
+      <p id="already-sent" class="notice notice--good" hidden>Spåret är redan delat eller nedladdat. Du kan dela det igen om det behövs.</p>
       <div id="summary" class="summary"></div>
-      <ol class="steps"><li>Tryck på <b>Dela GPX-fil</b> och välj e-post.</li><li>Skicka till <b id="email"></b> <button id="copy-email" class="inline-button">Kopiera adress</button></li></ol>
-      <div class="bottom-actions"><button id="share" class="primary">DELA GPX-FIL</button><button id="download" class="text-button">Ladda ned filen</button><button id="new-track" class="text-button">Nytt lopp</button></div>
+      <ol class="steps">
+        <li>Tryck på <b>Dela GPX-fil</b> och välj e-post.</li>
+        <li>Skicka till <b id="email"></b> <button id="copy-email" class="inline-button" type="button">Kopiera adress</button></li>
+      </ol>
+      <div class="bottom-actions">
+        <button id="share" class="primary" type="button">Dela GPX-fil</button>
+        <button id="download" class="text-button" type="button">Ladda ned filen i stället</button>
+        <button id="new-track" class="text-button text-button--quiet" type="button">Nytt lopp</button>
+      </div>
     </section>
   </main>
 
+  <!-- Fickläge: svart lager som tar emot alla tryck -->
   <section id="pocket" class="pocket" hidden aria-label="Fickläge">
-    <div><p class="eyebrow">FICKLÄGE</p><strong id="pocket-time">00:00</strong><span id="pocket-gps" class="gps-chip">GPS av</span><p id="pocket-distance">0,00 km</p><p id="pocket-error" class="pocket-error" hidden></p><button id="hold-unlock" class="hold"><span>Håll in för att låsa upp</span><i id="hold-progress"></i></button></div>
+    <div class="pocket__inner">
+      <p class="eyebrow">Fickläge · skärmen är låst för tryck</p>
+      <strong id="pocket-time" class="pocket__time">00:00</strong>
+      <p class="pocket__row"><span id="pocket-gps" class="gps-chip">GPS av</span><span id="pocket-distance">0,00 km</span></p>
+      <p id="pocket-error" class="pocket__error" hidden></p>
+      <div id="hold-unlock" class="hold" role="button" tabindex="0" aria-label="Håll in i två sekunder för att låsa upp">
+        <i id="hold-progress" class="hold__progress"></i>
+        <span id="hold-label" class="hold__label">Håll in 2 sekunder för att låsa upp</span>
+      </div>
+    </div>
   </section>
+
   <script type="module" src="app.js"></script>
 </body>
 </html>
